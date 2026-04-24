@@ -13,7 +13,7 @@ function AdminLogin() {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:5000/AdminLogin", {
+      const res = await axios.post("https://jiomart-backend-w3pb.onrender.com/AdminLogin", {
         email,
         password
       });
