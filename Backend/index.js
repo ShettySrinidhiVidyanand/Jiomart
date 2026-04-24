@@ -13,9 +13,10 @@ app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
-mongoose.connect("process.env.MONGO_URL")
-  .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.log(err));
+
+mongoose.connect(process.env.MONGO_URL,) 
+.then(() => console.log("MongoDB Atlas Connected")) 
+.catch((err) => console.log(err));
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -28,7 +29,7 @@ const transporter = nodemailer.createTransport({
 const userSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true },
-  phone: { type: String, unique: true }
+  phone: { type: String, unique: true, sparse: true }
 });
 const User = mongoose.model("User", userSchema);
 
@@ -50,7 +51,7 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + path.extname(file.originalname));
   }
 });
-const upload = multer({ storage, limits: { fileSize: 1000000 } });
+const upload = multer({ storage, limits: { fileSize: 5000000 } });
 
 let otpStore = {};
 
@@ -111,8 +112,9 @@ app.post("/SignUp", async (req, res) => {
     await new User({ name, email, phone }).save();
     res.json({ message: "User Registered Successfully" });
 
-  } catch {
-    res.status(500).json({ message: "Server Error" });
+  }catch (err) {
+  console.log("SIGNUP ERROR:", err);
+  res.status(500).json({ message: err.message });
   }
 });
 
@@ -174,10 +176,13 @@ app.post("/AdminLogin", (req, res) => {
 
 app.post("/products", upload.single("image"), async (req, res) => {
   try {
+     console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
+
     const product = await Product.create({
       name: req.body.name,
-      price: req.body.price,
-      quantity: req.body.quantity,
+      price: Number(req.body.price),
+      quantity: Number(req.body.quantity),
       description: req.body.description,
       category: req.body.category,
       image: req.file ? req.file.filename : null
@@ -186,6 +191,7 @@ app.post("/products", upload.single("image"), async (req, res) => {
     res.json({ message: "Product Added Successfully", product });
 
   } catch (err) {
+    console.log("PRODUCT ERROR:", err); 
     res.status(500).json(err);
   }
 });
@@ -245,10 +251,10 @@ app.post("/addToCart", async (req, res) => {
     const existingItem = await Cart.findOne({ productId ,userId});
 
     if (existingItem) {
-      existingItem.quantity += quantity;
+      existingItem.quantity += Number(quantity);
       await existingItem.save();
     } else {
-      await new Cart({ productId, name, price, image, quantity, userId }).save();
+      await new Cart({ productId, name, price: Number(price), image, quantity: Number(quantity), userId }).save();
     }
 
     res.json({ message: "Product added to cart" });

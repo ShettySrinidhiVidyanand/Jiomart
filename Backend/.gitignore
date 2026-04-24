@@ -1,0 +1,50 @@
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables (sensitive data)
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory
+coverage/
+
+# Build output
+dist/
+build/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+
+# Optional: Keep a placeholder file to maintain folder structure
+# Create an empty file named ".gitkeep" inside the uploads folder
+
+# Test files
+*.test.js
+*.spec.js

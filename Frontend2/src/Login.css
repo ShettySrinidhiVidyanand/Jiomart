@@ -1,0 +1,76 @@
+.card {
+  width: 400px;
+  min-height: 300px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  padding: 20px;
+}
+
+.top-section {
+  padding: 20px 20px 0 20px;
+}
+
+.close-btn {
+  font-size: 20px;
+  color: #0077b6;
+  cursor: pointer;
+}
+
+h2 {
+  margin: 15px 0 5px;
+}
+
+label {
+  display: block;
+  margin-top: 20px;
+  color: #555;
+  font-size: 15px;
+}
+
+.input-box {
+  margin-top: 6px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #bbb;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.middle-gap {
+  height: 150px;
+}
+
+.divider {
+  border-top: 1px solid #e0e0e0;
+}
+
+.bottom-section {
+  padding: 15px;
+  justify-content: space-between;
+}
+
+p {
+  font-size: 12px;
+  color: #555;
+}
+
+.signin-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 25px;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background: #9fc1d1;
+  cursor: pointer;
+}
+.signup-btn{
+    font-weight:bold;
+    justify-content: space-between;
+    border-radius: 10px;
+    margin-top: 20px;
+    
+}
