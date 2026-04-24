@@ -16,7 +16,7 @@ function Cart() {
     return;
   }
 
-  axios.get(`http://localhost:5000/cart/${user.userId}`)
+  axios.get(`https://jiomart-backend-w3pb.onrender.com/cart/${user.userId}`)
     .then(res => setCart(res.data))
     .catch(err => console.log(err));
 
