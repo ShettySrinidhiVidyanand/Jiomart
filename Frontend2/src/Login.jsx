@@ -15,7 +15,7 @@ function Login() {
     try {
 
       const res = await axios.post(
-        "http://localhost:5000/Login",
+        "https://jiomart-backend-w3pb.onrender.com/Login",
         { email }
       );
 
@@ -34,7 +34,7 @@ function Login() {
   const verifyOtp = async () => {
   try {
     const res = await axios.post(
-      "http://localhost:5000/VerifyOTP",
+      "https://jiomart-backend-w3pb.onrender.com/VerifyOTP",
       { email, otp }
     );
 
