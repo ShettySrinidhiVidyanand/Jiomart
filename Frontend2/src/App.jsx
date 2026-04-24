@@ -17,6 +17,7 @@ import CategoryCarousel from "./components/CategoryCarousel";
 import BannerSlider from "./components/BannerSlider"; 
 import ProductPage from "./ProductPage"; 
 import Profile from "./components/Profile";
+import AdminRoute from "./components/AdminRoute";
 
 
 function App() { 
@@ -38,11 +39,11 @@ function App() {
     <Route path="/Login" element={<Login />} /> 
     <Route path="/SignUp" element={<SignUp />} /> 
     <Route path="/AdminLogin" element={<AdminLogin />} /> 
-    <Route path="/AdminDashboard" element={<AdminDashboard />} /> 
+    <Route path="/AdminDashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} /> 
     <Route path="/AddProduct" element={<AddProduct />} /> 
-    <Route path="/ManageProduct" element={<ManageProduct />} /> 
+    <Route path="/ManageProduct" element={<AdminRoute><ManageProduct /></AdminRoute>} /> 
     <Route path="/Checkout" element={<Checkout />} /> 
-    <Route path="/ManageOrder" element={<ManageOrder />} />
+    <Route path="/ManageOrder" element={<AdminRoute><ManageOrder /></AdminRoute>} />
     <Route path="/UpdateProduct/:id" element={<UpdateProduct />} /> 
     <Route path="/product/:id" element={<ProductPage />} /> 
     <Route path="/profile" element={<Profile />} />
