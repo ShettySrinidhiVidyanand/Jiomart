@@ -11,7 +11,7 @@ function ManageOrder() {
 
   const fetchOrders = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/orders");
+      const res = await axios.get("https://jiomart-backend-w3pb.onrender.com/orders");
       setOrders(res.data);
     } catch (err) {
       console.log(err);
@@ -20,7 +20,7 @@ function ManageOrder() {
 
   const deleteOrder = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/order/${id}`);
+      await axios.delete(`https://jiomart-backend-w3pb.onrender.com/order/${id}`);
       fetchOrders();
     } catch (err) {
       console.log(err);
@@ -29,7 +29,7 @@ function ManageOrder() {
 
   const updateStatus = async (order, newStatus) => {
     try {
-      await axios.put(`http://localhost:5000/order/${order._id}`, {
+      await axios.put(`https://jiomart-backend-w3pb.onrender.com/order/${order._id}`, {
         paymentMethod: order.paymentMethod,
         address: order.address,
         status: newStatus,
