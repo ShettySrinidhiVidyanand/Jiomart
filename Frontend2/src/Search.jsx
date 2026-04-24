@@ -11,7 +11,7 @@ function Search() {
 
   useEffect(() => {
     if (query) {
-      fetch(`http://localhost:5000/search?q=${query}`)
+      fetch(`https://jiomart-backend-w3pb.onrender.com/search?q=${query}`)
         .then((res) => res.json())
         .then((data) => setProducts(data))
         .catch((err) => console.log(err));
