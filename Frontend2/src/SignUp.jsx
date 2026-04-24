@@ -11,7 +11,7 @@ function SignUp() {
   const handleSubmit = (e) => {
   e.preventDefault();
 
-  axios.post('http://localhost:5000/SignUp', {
+  axios.post('https://jiomart-backend-w3pb.onrender.com/SignUp', {
     name,
     email,
     phone
