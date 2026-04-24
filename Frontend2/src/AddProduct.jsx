@@ -33,7 +33,7 @@ function AddProduct() {
       console.log("Image:", image);
 
       const res = await axios.post(
-        "http://localhost:5000/products",
+        "https://jiomart-backend-w3pb.onrender.com/products",
         formData
       );
 
