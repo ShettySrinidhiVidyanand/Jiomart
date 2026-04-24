@@ -13,10 +13,13 @@ function AdminLogin() {
   e.preventDefault();
 
   try {
-    const res = await axios.post("https://jiomart-backend-w3pb.onrender.com/AdminLogin", {
-      email,
-      password
-    });
+    const res = await axios.post(
+  "https://jiomart-backend-w3pb.onrender.com/AdminLogin",
+  {
+    email: email.trim().toLowerCase(),
+    password: password.trim()
+  }
+);
 
     alert(res.data.message);
 

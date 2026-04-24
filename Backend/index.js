@@ -165,11 +165,17 @@ app.post("/VerifyOTP", async (req, res) => {
 });
 
 app.post("/AdminLogin", (req, res) => {
+  console.log("EMAIL:", req.body.email);
+  console.log("PASSWORD:", req.body.password);
+
   const { email, password } = req.body;
 
-  if (email === "admin@gmail.com" && password === "admin123") {
-    return res.json({ message: "Admin Login Successful" });
-  }
+  if (
+  email.trim().toLowerCase() === "admin@gmail.com" &&
+  password.trim() === "admin24"
+) {
+  return res.json({ message: "Admin Login Successful" });
+}
 
   res.status(401).json({ message: "Invalid Admin Credentials" });
 });
