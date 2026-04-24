@@ -68,7 +68,7 @@ function Checkout() {
         );
 
         const options = {
-          key: "rzp_test_Sb4pXZYrf1UHkb",
+          key: process.env.RAZORPAY_KEY_ID,
           amount: res.data.amount * 100, 
           currency: "INR",
           name: "JioMart",
