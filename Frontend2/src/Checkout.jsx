@@ -26,7 +26,7 @@ function Checkout() {
     }
 
     axios
-      .get(`http://localhost:5000/cart/${user.userId}`)
+      .get(`https://jiomart-backend-w3pb.onrender.com/cart/${user.userId}`)
       .then((res) => setCartItems(res.data))
       .catch((err) => console.log(err));
   };
@@ -45,7 +45,7 @@ function Checkout() {
 
     if (paymentMethod === "Cash on Delivery") {
       axios
-        .post("http://localhost:5000/createOrder", {
+        .post("https://jiomart-backend-w3pb.onrender.com/createOrder", {
           paymentMethod,
           address,
           status: "Pending",
@@ -63,7 +63,7 @@ function Checkout() {
     else {
       try {
         const res = await axios.post(
-          "http://localhost:5000/razorpayOrder",
+          "https://jiomart-backend-w3pb.onrender.com/razorpayOrder",
           { userId: user.userId }
         );
 
@@ -78,7 +78,7 @@ function Checkout() {
           handler: async function (response) {
             if (response.razorpay_payment_id) {
               try {
-                await axios.post("http://localhost:5000/createOrder", {
+                await axios.post("https://jiomart-backend-w3pb.onrender.com/createOrder", {
                   paymentMethod,
                   address,
                   status: "Paid",
@@ -86,14 +86,14 @@ function Checkout() {
                   userId: user.userId
                 });
 
-                alert("Payment Verified & Order Saved ✅");
+                alert("Payment Verified & Order Saved ");
                 setCartItems([]);
               } catch (err) {
                 console.log(err);
                 alert("Order saving failed");
               }
             } else {
-              alert("Payment verification failed ❌");
+              alert("Payment verification failed ");
             }
           },
 

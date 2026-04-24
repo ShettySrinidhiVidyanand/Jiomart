@@ -15,7 +15,7 @@ function ManageProduct() {
   }, []);
 
   const fetchProducts = () => {
-    axios.get("http://localhost:5000/products")
+    axios.get("https://jiomart-backend-w3pb.onrender.com/products")
       .then((res) => {
         setProducts(res.data);
       })
@@ -27,7 +27,7 @@ function ManageProduct() {
 
   if(window.confirm("Are you sure you want to delete this product?")){
 
-    axios.delete(`http://localhost:5000/deleteProduct/${id}`)
+    axios.delete(`https://jiomart-backend-w3pb.onrender.com/deleteProduct/${id}`)
     .then(() => {
 
       alert("Product Deleted");

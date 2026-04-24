@@ -14,7 +14,7 @@ function ProductPage() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/product/${id}`)
+      .get(`https://jiomart-backend-w3pb.onrender.com/product/${id}`)
       .then((res) => setProduct(res.data.product))
       .catch((err) => console.log(err));
   }, [id]);
@@ -28,7 +28,7 @@ function ProductPage() {
       return;
     }
 
-    axios.post("http://localhost:5000/addToCart", {
+    axios.post("https://jiomart-backend-w3pb.onrender.com/addToCart", {
       productId: product._id,
       name: product.name,
       price: product.price,

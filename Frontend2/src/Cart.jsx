@@ -16,21 +16,21 @@ function Cart() {
     return;
   }
 
-  axios.get(`http://localhost:5000/cart/${user.userId}`)
+  axios.get(`https://jiomart-backend-w3pb.onrender.com/cart/${user.userId}`)
     .then(res => setCart(res.data))
     .catch(err => console.log(err));
 
 }, [user]);
 
   const removeItem = (id) => {
-    axios.delete(`http://localhost:5000/cart/${id}`)
+    axios.delete(`https://jiomart-backend-w3pb.onrender.com/cart/${id}`)
       .then(() => {
         setCart(cart.filter(item => item._id !== id));
       });
   };
 
   const updateQuantity = (id, qty) => {
-    axios.put(`http://localhost:5000/cart/${id}`, {
+    axios.put(`https://jiomart-backend-w3pb.onrender.com/cart/${id}`, {
       quantity: Math.max(1, qty)
     })
     .then(res => {

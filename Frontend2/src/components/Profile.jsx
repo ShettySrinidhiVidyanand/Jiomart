@@ -11,7 +11,7 @@ const Profile = () => {
   setUser(storedUser);
 
   if (storedUser?.userId) {
-    fetch(`http://localhost:5000/my-orders/${storedUser.userId}`)
+    fetch(`https://jiomart-backend-w3pb.onrender.com/my-orders/${storedUser.userId}`)
       .then(res => {
         if (!res.ok) throw new Error("Failed to fetch");
         return res.json();
