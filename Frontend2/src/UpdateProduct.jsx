@@ -17,7 +17,7 @@ function UpdateProduct(){
 
   useEffect(()=>{
 
-    axios.get(`http://localhost:5000/product/${id}`)
+    axios.get(`https://jiomart-backend-w3pb.onrender.com/product/${id}`)
     .then(res=>{
       setName(res.data.name);
       setPrice(res.data.price);
@@ -41,7 +41,7 @@ function UpdateProduct(){
     formData.append("description", description);
     formData.append("image", image);
 
-    axios.put(`http://localhost:5000/updateProduct/${id}`, formData)
+    axios.put(`https://jiomart-backend-w3pb.onrender.com/updateProduct/${id}`, formData)
     .then(()=>{
       alert("Product Updated");
       navigate("/ManageProduct");
