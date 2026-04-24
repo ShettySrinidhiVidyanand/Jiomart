@@ -7,6 +7,7 @@ function AdminRoute({ children }) {
   if (role !== "admin") {
     return <Navigate to="/" />;
   }
+
   return children;
 }
 

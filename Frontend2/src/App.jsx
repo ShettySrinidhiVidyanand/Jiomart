@@ -40,7 +40,7 @@ function App() {
     <Route path="/SignUp" element={<SignUp />} /> 
     <Route path="/AdminLogin" element={<AdminLogin />} /> 
     <Route path="/AdminDashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} /> 
-    <Route path="/AddProduct" element={<AddProduct />} /> 
+    <Route path="/AddProduct" element={<AdminRoute><AddProduct /></AdminRoute>} /> 
     <Route path="/ManageProduct" element={<AdminRoute><ManageProduct /></AdminRoute>} /> 
     <Route path="/Checkout" element={<Checkout />} /> 
     <Route path="/ManageOrder" element={<AdminRoute><ManageOrder /></AdminRoute>} />

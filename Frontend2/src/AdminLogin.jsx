@@ -10,24 +10,26 @@ function AdminLogin() {
   const navigate = useNavigate();
 
   const handleAdminLogin = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const res = await axios.post("https://jiomart-backend-w3pb.onrender.com/AdminLogin", {
-        email,
-        password
-      });
+  try {
+    const res = await axios.post("https://jiomart-backend-w3pb.onrender.com/AdminLogin", {
+      email,
+      password
+    });
 
-      alert(res.data.message);
+    alert(res.data.message);
 
-      if (res.status === 200) {
-        navigate("/AdminDashboard");
-      }
+    if (res.status === 200) {
+      localStorage.setItem("role", "admin");
 
-    } catch (err) {
-      alert(err.response?.data?.message || "Invalid Admin Credentials");
+      navigate("/AdminDashboard");
     }
-  };
+
+  } catch (err) {
+    alert(err.response?.data?.message || "Invalid Admin Credentials");
+  }
+};
 
   return (
     <div className="page">
