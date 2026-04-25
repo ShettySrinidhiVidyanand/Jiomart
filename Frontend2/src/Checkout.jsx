@@ -123,10 +123,16 @@ function Checkout() {
     }
   };
 
-  const totalAmount = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
+  const subtotal = cartItems.reduce(
+  (total, item) => total + item.price * item.quantity,
+  0
+);
+
+const GST_PERCENT = 18;
+
+const gstAmount = (subtotal * GST_PERCENT) / 100;
+
+const totalAmount = subtotal + gstAmount;
 
   return (
     <div className="checkout-container">
@@ -138,7 +144,7 @@ function Checkout() {
           cartItems.map((item) => (
             <div key={item._id} className="checkout-item">
               <img
-                src={`http://localhost:5000/uploads/${item.image}`}
+                src={item.productId.image}
                 alt={item.name}
                 width="80"
               />
@@ -154,7 +160,11 @@ function Checkout() {
           <p>No products in cart</p>
         )}
 
-        <h3>Total Amount: ₹{totalAmount}</h3>
+        <div className="bill-details">
+          <p>Subtotal: ₹{subtotal}</p>
+          <p>GST (18%): ₹{gstAmount.toFixed(2)}</p>
+          <h3>Total Amount: ₹{totalAmount.toFixed(2)}</h3>
+        </div>
       </div>
 
       <div className="checkout-payment">

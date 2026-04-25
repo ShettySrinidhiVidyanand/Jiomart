@@ -8,6 +8,7 @@ const path = require("path");
 const crypto = require("crypto");
 
 const app = express();
+const GST_PERCENT = 18;
 
 app.use(cors());
 app.use(express.json());
@@ -100,6 +101,8 @@ const orderSchema = new mongoose.Schema({
       quantity: Number
     }
   ],
+  subtotal: Number,
+  gstAmount: Number,
   totalAmount: Number,
   paymentMethod: String,
   address: {
@@ -208,7 +211,7 @@ app.post("/products", upload.single("image"), async (req, res) => {
   try {
      console.log("BODY:", req.body);
     console.log("FILE:", req.file);
-    console.log("IMAGE URL:", req.file.path);
+    console.log("IMAGE URL:", req.file?.path);
 
     const product = await Product.create({
       name: req.body.name,
@@ -216,7 +219,7 @@ app.post("/products", upload.single("image"), async (req, res) => {
       quantity: Number(req.body.quantity),
       description: req.body.description,
       category: req.body.category,
-      image: req.file ? req.file.path || req.file.secure_url : null
+      image: req.file.path
     });
 
     res.json({ message: "Product Added Successfully", product });
@@ -341,7 +344,11 @@ app.post("/createOrder", async (req, res) => {
       return res.status(400)
       .json({ message: "Cart is empty" });
 
-    const totalAmount = cartItems.reduce((t, i) => t + i.price * i.quantity, 0);
+    const subtotal = cartItems.reduce((t, i) => t + i.price * i.quantity, 0);
+
+    const gstAmount = (subtotal * GST_PERCENT) / 100;
+
+    const totalAmount = subtotal + gstAmount;
 
     const orderItems = cartItems.map(i => ({
       productId: i.productId,
@@ -354,6 +361,8 @@ app.post("/createOrder", async (req, res) => {
     const newOrder = await new Order({
       userId:req.body.userId,
       items: orderItems,
+      subtotal,
+      gstAmount,
       totalAmount,
       paymentMethod,
       address,
@@ -374,8 +383,11 @@ app.post("/createOrder", async (req, res) => {
 
         ${productList}
 
+        Subtotal: ₹${subtotal}
+        GST (18%): ₹${gstAmount}
         Total: ₹${totalAmount}
         Payment: ${paymentMethod}
+
 
         Address:
         ${address.address}, ${address.pincode}`
@@ -475,10 +487,13 @@ app.post("/razorpayOrder", async (req, res) => {
     if (cartItems.length === 0)
       return res.status(400).json({ message: "Cart is empty" });
 
-    const totalAmount = cartItems.reduce(
+        const subtotal = cartItems.reduce(
       (t, i) => t + i.price * i.quantity,
       0
     );
+
+    const gstAmount = (subtotal * GST_PERCENT) / 100;
+    const totalAmount = subtotal + gstAmount;
 
     const options = {
       amount: totalAmount * 100, 
@@ -521,10 +536,13 @@ app.post("/verifyPayment", async (req, res) => {
 
       const cartItems = await Cart.find({ userId });
 
-      const totalAmount = cartItems.reduce(
-        (t, i) => t + i.price * i.quantity,
-        0
-      );
+      const subtotal = cartItems.reduce(
+      (t, i) => t + i.price * i.quantity,
+      0
+    );
+
+    const gstAmount = (subtotal * GST_PERCENT) / 100;
+    const totalAmount = subtotal + gstAmount;
 
       const orderItems = cartItems.map((i) => ({
         productId: i.productId,
@@ -536,7 +554,9 @@ app.post("/verifyPayment", async (req, res) => {
 
       const newOrder = await new Order({
         items: orderItems,
+        gstAmount,
         totalAmount,
+        subtotal,
         paymentMethod,
         address,
         userId,

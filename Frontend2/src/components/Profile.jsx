@@ -107,7 +107,7 @@ const Profile = () => {
           {order.items.map((item, index) => (
             <div key={index} className="order-item">
               <img
-                src={`http://localhost:5000/uploads/${item.image}`}
+                src={item.image}
                 alt={item.name}
                 className="order-img"
               />
