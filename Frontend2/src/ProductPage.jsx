@@ -49,7 +49,7 @@ function ProductPage() {
 
       <div className="product-image-section">
         <img
-          src={`http://localhost:5000/uploads/${product.image}`}
+          src={product.image}
           alt={product.name}
         />
       </div>

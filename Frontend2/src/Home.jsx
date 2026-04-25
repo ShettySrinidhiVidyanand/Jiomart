@@ -51,7 +51,7 @@ function Home() {
           <div className="product-card" key={product._id}>
 
             <img
-              src={`http://localhost:5000/uploads/${product.image}`}
+              src={product.image}
               alt={product.name}
             />
 

@@ -11,46 +11,86 @@ function AddProduct() {
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
 
-    if (!image) {
-      alert("Please select an image");
-      return;
-    }
+//     if (!image) {
+//       alert("Please select an image");
+//       return;
+//     }
 
-    const formData = new FormData();
+//     const formData = new FormData();
 
-    formData.append("name", name);
-    formData.append("price", price);
-    formData.append("quantity", quantity);
-    formData.append("category", category);
-    formData.append("description", description);
-    formData.append("image", image);
+//     formData.append("name", name);
+//     formData.append("price", price);
+//     formData.append("quantity", quantity);
+//     formData.append("category", category);
+//     formData.append("description", description);
+// formData.append("image", image);
 
-    try {
-      console.log("Sending Data...");
-      console.log("Image:", image);
+//     try {
+//       console.log("Sending Data...");
+//       console.log("Image:", image);
 
-      const res = await axios.post(
-        "https://jiomart-backend-w3pb.onrender.com/products",
-        formData
-      );
+//       const res = await axios.post(
+//         "https://jiomart-backend-w3pb.onrender.com/products",
+//         formData
+//       );
 
-      alert(res.data.message);
+//       alert(res.data.message);
 
-      setName("");
-      setPrice("");
-      setQuantity("");
-      setCategory("");
-      setDescription("");
-      setImage(null);
+//       setName("");
+//       setPrice("");
+//       setQuantity("");
+//       setCategory("");
+//       setDescription("");
+//       setImage(null);
 
-    } catch (err) {
-      console.log("ERROR:", err.response?.data || err.message);
-      alert("Failed to add product");
-    }
-  };
+//     } catch (err) {
+//       console.log("ERROR:", err.response?.data || err.message);
+//       alert("Failed to add product");
+//     }
+//   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!image) {
+    alert("Please select an image");
+    return;
+  }
+
+  const formData = new FormData();
+
+  formData.append("name", name);
+  formData.append("price", price);
+  formData.append("quantity", quantity);
+  formData.append("category", category);
+  formData.append("description", description);
+  formData.append("image", image); 
+  try {
+    console.log("Sending Data...");
+    console.log("Image:", image);
+
+    const res = await axios.post(
+      "https://jiomart-backend-w3pb.onrender.com/products",
+      formData
+        
+    );
+
+    alert(res.data.message);
+
+    setName("");
+    setPrice("");
+    setQuantity("");
+    setCategory("");
+    setDescription("");
+    setImage(null);
+
+  } catch (err) {
+    console.log("ERROR:", err.response?.data || err.message);
+    alert("Failed to add product");
+  }
+};
 
   return (
     <div className="addproduct-container">

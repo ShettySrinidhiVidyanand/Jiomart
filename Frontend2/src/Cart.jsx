@@ -66,7 +66,7 @@ function Cart() {
             <div className="cart-card" key={item._id}>
 
               <img
-                src={`http://localhost:5000/uploads/${item.image}`}
+                src={item.productId.image}
                 alt={item.name}
               />
 

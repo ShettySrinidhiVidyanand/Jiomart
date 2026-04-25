@@ -43,15 +43,39 @@ const productSchema = new mongoose.Schema({
 });
 const Product = mongoose.model("Product", productSchema);
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./uploads/");
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, "./uploads/");
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, Date.now() + path.extname(file.originalname));
+//   }
+// });
+// const upload = multer({ storage, limits: { fileSize: 5000000 } });
+
+const { v2: cloudinary } = require("cloudinary");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-const upload = multer({ storage, limits: { fileSize: 5000000 } });
+
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    return {
+      folder: "products",
+      allowed_formats: ["jpg", "png", "jpeg"],
+      public_id: Date.now() + "-" + file.originalname,
+    };
+  },
+});
+
+const upload = multer({ storage });
 
 let otpStore = {};
 
@@ -93,7 +117,7 @@ const Order = mongoose.model("Order", orderSchema);
 
 const Razorpay = require("razorpay");
 
-// Initialize Razorpay instance
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET
@@ -184,6 +208,7 @@ app.post("/products", upload.single("image"), async (req, res) => {
   try {
      console.log("BODY:", req.body);
     console.log("FILE:", req.file);
+    console.log("IMAGE URL:", req.file.path);
 
     const product = await Product.create({
       name: req.body.name,
@@ -191,7 +216,7 @@ app.post("/products", upload.single("image"), async (req, res) => {
       quantity: Number(req.body.quantity),
       description: req.body.description,
       category: req.body.category,
-      image: req.file ? req.file.filename : null
+      image: req.file ? req.file.path || req.file.secure_url : null
     });
 
     res.json({ message: "Product Added Successfully", product });
@@ -231,7 +256,7 @@ app.put("/updateProduct/:id", upload.single("image"), async (req, res) => {
       description: req.body.description
     };
 
-    if (req.file) updateData.image = req.file.filename;
+    if (req.file) updateData.image = req.file.path || req.file.secure_url;
 
     await Product.findByIdAndUpdate(req.params.id, updateData);
     res.json({ message: "Product Updated Successfully" });
@@ -554,5 +579,7 @@ app.get("/getUser/:email", async (req, res) => {
   }
 });
 
-app.listen(5000, () => 
-  console.log("Server running on port 5000"));
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => 
+  console.log(`Server running on port ${PORT}`));
