@@ -210,9 +210,12 @@ app.post("/AdminLogin", (req, res) => {
 
 app.post("/products", upload.single("image"), async (req, res) => {
   try {
-     console.log("BODY:", req.body);
+    console.log("BODY:", req.body);
     console.log("FILE:", req.file);
-    console.log("IMAGE URL:", req.file?.path);
+
+    if (!req.file) {
+      return res.status(400).json({ message: "Image upload failed" });
+    }
 
     const product = await Product.create({
       name: req.body.name,
@@ -220,14 +223,15 @@ app.post("/products", upload.single("image"), async (req, res) => {
       quantity: Number(req.body.quantity),
       description: req.body.description,
       category: req.body.category,
-      image: req.file.path
+      image: req.file.path, 
+      gst: Number(req.body.gst)
     });
 
     res.json({ message: "Product Added Successfully", product });
 
   } catch (err) {
-    console.log("PRODUCT ERROR:", err); 
-    res.status(500).json(err);
+    console.log("FULL ERROR:", err); 
+    res.status(500).json({ error: err.message });
   }
 });
 

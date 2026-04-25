@@ -74,10 +74,14 @@ const handleSubmit = async (e) => {
     console.log("Image:", image);
 
     const res = await axios.post(
-      "https://jiomart-backend-w3pb.onrender.com/products",
-      formData
-        
-    );
+  "https://jiomart-backend-w3pb.onrender.com/products",
+  formData,
+  {
+    headers: {
+      "Content-Type": "multipart/form-data"
+    }
+  }
+);
 
     alert(res.data.message);
 
