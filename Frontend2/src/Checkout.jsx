@@ -68,7 +68,7 @@ function Checkout() {
         );
 
         const options = {
-          key: process.env.RAZORPAY_KEY_ID,
+          key: process.env.REACT_APP_RAZORPAY_KEY_ID,
           amount: res.data.amount * 100, 
           currency: "INR",
           name: "JioMart",
@@ -144,7 +144,7 @@ const totalAmount = subtotal + gstAmount;
           cartItems.map((item) => (
             <div key={item._id} className="checkout-item">
               <img
-                src={item.productId.image}
+                src={item.image}
                 alt={item.name}
                 width="80"
               />
