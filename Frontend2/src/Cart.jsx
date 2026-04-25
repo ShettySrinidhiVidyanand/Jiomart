@@ -66,7 +66,7 @@ function Cart() {
             <div className="cart-card" key={item._id}>
 
               <img
-              src={`https://jiomart-backend-w3pb.onrender.com/${item.image}`}
+              src={item.image}
               alt={item.name}
             />
 
