@@ -40,7 +40,8 @@ const productSchema = new mongoose.Schema({
   quantity: Number,
   category: String,
   description: String,
-  image: String
+  image: String,
+  gst: Number
 });
 const Product = mongoose.model("Product", productSchema);
 

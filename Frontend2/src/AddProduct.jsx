@@ -10,6 +10,7 @@ function AddProduct() {
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(null);
+  const[gst, setGst] = useState("");
 
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
@@ -67,6 +68,7 @@ const handleSubmit = async (e) => {
   formData.append("category", category);
   formData.append("description", description);
   formData.append("image", image); 
+  formData.append("gst", gst);
   try {
     console.log("Sending Data...");
     console.log("Image:", image);
@@ -150,7 +152,12 @@ const handleSubmit = async (e) => {
             onChange={(e) => setImage(e.target.files[0])}
             required
           />
-
+          <input
+            type="number"
+            placeholder="Enter GST percentage"
+            value={gst}
+            onChange={(e) => setGst(e.target.value)}
+            required/>
           <button type="submit" className="btn">
             Add Product
           </button>
