@@ -382,7 +382,7 @@ app.post("/createOrder", async (req, res) => {
     }));
 
     const newOrder = await new Order({
-      userId:req.body.userId,
+      userId:userId,
       items: orderItems,
       subtotal,
       gstAmount,
@@ -397,7 +397,7 @@ app.post("/createOrder", async (req, res) => {
 
     try {
       const info = await transporter.sendMail({
-        from: '"JioMart" <shtynidhi@gmail.com>',
+        from: `"JioMart" <${process.env.EMAIL_USER}>`,
         to: address.email,
         subject: "Order Confirmation - JioMart",
         text: `Hello ${address.name},
@@ -451,12 +451,14 @@ app.put("/order/:id", async (req, res) => {
     if (req.body.changeStatus === "Shipped" || req.body.changeStatus === "Delivered") {
       try {
         const info = await transporter.sendMail({
-          from: '"JioMart" <shtynidhi@gmail.com>',
-          to: order.address.email,
-          subject: `Order ${req.body.changeStatus}`,
-          text: `Hello ${order.address.name},
+          from: `"JioMart" <${process.env.EMAIL_USER}>`,
+          to: address.email,
+          subject: "Payment Successful - Order Placed",
+          text: `Hello ${address.name},
 
-        Your order status has been updated to: ${req.body.changeStatus}`
+        Your payment was successful and order has been placed.
+
+        Total: ₹${totalAmount}`
         });
         console.log("STATUS MAIL SENT:", info.response);
       } catch (err) {
@@ -632,13 +634,14 @@ app.get("/admin-stats", async (req, res) => {
     let totalRevenue = 0;
     let paidPayments = 0;
 
+    let pending = 0;  
     let shipped = 0;
     let delivered = 0;
 
     orders.forEach((item) => {
       totalRevenue += item.totalAmount || 0;
 
-      if (item.paymentId) {
+      if (item.status === "Paid") {
         paidPayments++;
       }
 

@@ -27,7 +27,7 @@ function AdminDashboard() {
   }, []);
 
   const fetchStats = async () => {
-    const res = await axios.get("https://mamaearth-clone-1-x7wj.onrender.com/admin-stats");
+    const res = await axios.get("https://jiomart-backend-w3pb.onrender.com/admin-stats");
     setStats(res.data);
   };
 
@@ -49,9 +49,9 @@ function AdminDashboard() {
       <h1>Admin Dashboard</h1>
 
       <div className="top-buttons">
-  <button onClick={() => navigate("/add-product")}> Add Product</button>
-  <button onClick={() => navigate("/manage-products")}> Manage Products</button>
-  <button onClick={() => navigate("/manage-orders")}> Manage Orders</button>
+  <button onClick={() => navigate("/AddProduct")}> Add Product</button>
+  <button onClick={() => navigate("/ManageProduct")}> Manage Products</button>
+  <button onClick={() => navigate("/ManageOrder")}> Manage Orders</button>
    <button onClick={() => navigate("/")}>Logout</button>
 </div>
 
