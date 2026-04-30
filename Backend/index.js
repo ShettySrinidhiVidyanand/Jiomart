@@ -15,10 +15,8 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE"],
 }));
 
-app.options("*", cors());
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
-
 
 mongoose.connect(process.env.MONGO_URL,) 
 .then(() => console.log("MongoDB Atlas Connected")) 
