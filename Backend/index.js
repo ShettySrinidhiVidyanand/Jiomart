@@ -11,9 +11,8 @@ const app = express();
 const GST_PERCENT = 18;
 
 app.use(cors({
-  origin: "https://jiomart-frontend2.onrender.com",
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
 }));
 
 app.options("*", cors());
