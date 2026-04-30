@@ -152,6 +152,11 @@ app.post("/SignUp", async (req, res) => {
 app.post("/Login", async (req, res) => {
   try {
     const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
     const user = await User.findOne({ email });
 
     if (!user)
@@ -161,7 +166,7 @@ app.post("/Login", async (req, res) => {
     otpStore[email] = otp;
 
     await transporter.sendMail({
-      from: "shtynidhi@gmail.com",
+      from: process.env.EMAIL_USER,
       to: email,
       subject: "JioMart Login OTP",
       text: `Your OTP is ${otp}`
@@ -169,10 +174,11 @@ app.post("/Login", async (req, res) => {
 
     res.json({ message: "OTP sent to your email" });
 
-   } catch (err) {
-  console.log("LOGIN ERROR:", err);  
-  res.status(500).json({ message: err.message });
+  } catch (err) {
+    console.log("LOGIN ERROR:", err);
+    res.status(500).json({ message: err.message });
   }
+});
 
 app.post("/VerifyOTP", async (req, res) => {
   const { email, otp } = req.body;
