@@ -169,10 +169,10 @@ app.post("/Login", async (req, res) => {
 
     res.json({ message: "OTP sent to your email" });
 
-  } catch {
-    res.status(500).json({ message: "Server Error" });
+   } catch (err) {
+  console.log("LOGIN ERROR:", err);  
+  res.status(500).json({ message: err.message });
   }
-});
 
 app.post("/VerifyOTP", async (req, res) => {
   const { email, otp } = req.body;
