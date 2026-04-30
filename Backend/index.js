@@ -6,6 +6,7 @@ const multer = require("multer");
 const nodemailer = require("nodemailer");
 const path = require("path");
 const crypto = require("crypto");
+const PDFDocument = require("pdfkit");
 
 const app = express();
 const GST_PERCENT = 18;
@@ -360,17 +361,16 @@ app.delete("/cart/:id", async (req, res) => {
 
 app.post("/createOrder", async (req, res) => {
   try {
-    const { paymentMethod, address ,status,userId} = req.body;
-    const cartItems = await Cart.find({userId});
+    const { paymentMethod, address, status, userId } = req.body;
 
-    if (cartItems.length === 0)
-      return res.status(400)
-      .json({ message: "Cart is empty" });
+    const cartItems = await Cart.find({ userId });
+
+    if (cartItems.length === 0) {
+      return res.status(400).json({ message: "Cart is empty" });
+    }
 
     const subtotal = cartItems.reduce((t, i) => t + i.price * i.quantity, 0);
-
     const gstAmount = (subtotal * GST_PERCENT) / 100;
-
     const totalAmount = subtotal + gstAmount;
 
     const orderItems = cartItems.map(i => ({
@@ -382,53 +382,86 @@ app.post("/createOrder", async (req, res) => {
     }));
 
     const newOrder = await new Order({
-      userId:userId,
+      userId,
       items: orderItems,
       subtotal,
       gstAmount,
       totalAmount,
       paymentMethod,
       address,
-      status: status|| "Pending",
+      status: status || "Pending",
       changeStatus: "Pending"
     }).save();
 
-    const productList = orderItems.map(i => `${i.name} (x${i.quantity}) - ₹${i.price}`).join("\n");
-
     try {
-      const info = await transporter.sendMail({
-        from: `"JioMart" <${process.env.EMAIL_USER}>`,
-        to: address.email,
-        subject: "Order Confirmation - JioMart",
-        text: `Hello ${address.name},
+      const doc = new PDFDocument();
+      let buffers = [];
 
-        Your order has been placed successfully!
+      doc.on("data", (chunk) => buffers.push(chunk));
 
-        ${productList}
+      doc.on("end", async () => {
+        const pdfData = Buffer.concat(buffers);
 
-        Subtotal: ₹${subtotal}
-        GST (18%): ₹${gstAmount}
-        Total: ₹${totalAmount}
-        Payment: ${paymentMethod}
+        try {
+          const info = await transporter.sendMail({
+            from: `"JioMart" <${process.env.EMAIL_USER}>`,
+            to: address.email,
+            subject: "Invoice - JioMart Order",
+            text: "Your order invoice is attached as PDF.",
+            attachments: [
+              {
+                filename: "invoice.pdf",
+                content: pdfData
+              }
+            ]
+          });
 
-
-        Address:
-        ${address.address}, ${address.pincode}`
+          console.log("PDF MAIL SENT:", info.response);
+        } catch (err) {
+          console.log("MAIL ERROR:", err);
+        }
       });
-      console.log("ORDER MAIL SENT:", info.response);
+
+      doc.fontSize(20).text("JioMart Invoice", { align: "center" });
+      doc.moveDown();
+
+      doc.fontSize(12).text(`Customer: ${address.name}`);
+      doc.text(`Email: ${address.email}`);
+      doc.text(`Address: ${address.address}, ${address.pincode}`);
+      doc.moveDown();
+
+      doc.text("Products:");
+      doc.moveDown();
+
+      orderItems.forEach((item, index) => {
+        doc.text(`${index + 1}. ${item.name} - ₹${item.price} x ${item.quantity}`);
+      });
+
+      doc.moveDown();
+      doc.text(`Subtotal: ₹${subtotal}`);
+      doc.text(`GST (18%): ₹${gstAmount.toFixed(2)}`);
+      doc.text(`Total: ₹${totalAmount.toFixed(2)}`);
+      doc.text(`Payment: ${paymentMethod}`);
+
+      doc.end();
+
     } catch (err) {
-      console.log("ORDER MAIL ERROR:", err);
+      console.log("PDF ERROR:", err);
     }
 
-    await Cart.deleteMany({userId});
+    await Cart.deleteMany({ userId });
 
-    res.json({ message: "Order placed successfully", order: newOrder });
+    res.json({
+      message: "Order placed successfully",
+      order: newOrder
+    });
 
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error placing order" });
   }
 });
+
 
 app.get("/orders", async (req, res) => {
   try {
@@ -437,6 +470,7 @@ app.get("/orders", async (req, res) => {
     res.status(500).json({ message: "Error fetching orders" });
   }
 });
+
 
 app.put("/order/:id", async (req, res) => {
   try {
@@ -448,18 +482,22 @@ app.put("/order/:id", async (req, res) => {
 
     await Order.findByIdAndUpdate(req.params.id, req.body);
 
-    if (req.body.changeStatus === "Shipped" || req.body.changeStatus === "Delivered") {
+    if (
+      req.body.changeStatus === "Shipped" ||
+      req.body.changeStatus === "Delivered"
+    ) {
       try {
         const info = await transporter.sendMail({
           from: `"JioMart" <${process.env.EMAIL_USER}>`,
-          to: address.email,
-          subject: "Payment Successful - Order Placed",
-          text: `Hello ${address.name},
+          to: order.address.email,
+          subject: "Order Status Update",
+          text: `Hello ${order.address.name},
 
-        Your payment was successful and order has been placed.
+Your order is now ${req.body.changeStatus}.
 
-        Total: ₹${totalAmount}`
+Total: ₹${order.totalAmount}`
         });
+
         console.log("STATUS MAIL SENT:", info.response);
       } catch (err) {
         console.log("STATUS MAIL ERROR:", err);
