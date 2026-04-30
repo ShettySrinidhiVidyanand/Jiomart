@@ -10,7 +10,13 @@ const crypto = require("crypto");
 const app = express();
 const GST_PERCENT = 18;
 
-app.use(cors());
+app.use(cors({
+  origin: "https://jiomart-frontend2.onrender.com",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
+
+app.options("*", cors());
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
