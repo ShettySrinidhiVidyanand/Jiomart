@@ -15,9 +15,9 @@ function Login() {
     try {
 
       const res = await axios.post(
-        "https://jiomart-backend-w3pb.onrender.com/Login",
-        { email }
-      );
+  "https://jiomart-backend.onrender.com/Login",
+  { email }
+);
 
       alert(res.data.message);
 
@@ -34,11 +34,11 @@ function Login() {
   const verifyOtp = async () => {
   try {
     const res = await axios.post(
-      "https://jiomart-backend-w3pb.onrender.com/VerifyOTP",
-      { email, otp }
-    );
+  "https://jiomart-backend.onrender.com/VerifyOTP",
+  { email, otp }
+);
 
-    alert(res.data.message);
+    alert(res.data.message||"Success");
 
     const user = res.data.user;
 
@@ -53,7 +53,7 @@ function Login() {
     navigate("/");
 
   } catch (err) {
-    alert(err.response?.data?.message);
+    alert(err.response?.data?.message||err.message);
   }
 };
   return (

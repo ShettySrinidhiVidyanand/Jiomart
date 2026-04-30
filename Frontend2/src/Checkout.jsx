@@ -26,7 +26,7 @@ function Checkout() {
     }
 
     axios
-      .get(`https://jiomart-backend-w3pb.onrender.com/cart/${user.userId}`)
+      .get(`http://localhost:5000/cart/${user.userId}`)
       .then((res) => setCartItems(res.data))
       .catch((err) => console.log(err));
   };
@@ -45,7 +45,7 @@ function Checkout() {
 
     if (paymentMethod === "Cash on Delivery") {
       axios
-        .post("https://jiomart-backend-w3pb.onrender.com/createOrder", {
+        .post("http://localhost:5000/createOrder", {
           paymentMethod,
           address,
           status: "Pending",
@@ -63,7 +63,7 @@ function Checkout() {
     else {
       try {
         const res = await axios.post(
-          "https://jiomart-backend-w3pb.onrender.com/razorpayOrder",
+          "http://localhost:5000/razorpayOrder",
           { userId: user.userId }
         );
 
@@ -78,7 +78,7 @@ function Checkout() {
           handler: async function (response) {
             if (response.razorpay_payment_id) {
               try {
-                await axios.post("https://jiomart-backend-w3pb.onrender.com/createOrder", {
+                await axios.post("http://localhost:5000/createOrder", {
                   paymentMethod,
                   address,
                   status: "Paid",
