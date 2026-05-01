@@ -73,8 +73,9 @@ const handleSubmit = async (e) => {
     console.log("Sending Data...");
     console.log("Image:", image);
 
+    console.log("API URL:", import.meta.env.VITE_API_URL);
     const res = await axios.post(
-  "http://localhost:5000/products",
+  `${import.meta.env.VITE_API_URL}/products`,
   formData,
   {
     headers: {
@@ -83,7 +84,7 @@ const handleSubmit = async (e) => {
   }
 );
 
-    alert(res.data.message);
+    console.log(res.data.message);
 
     setName("");
     setPrice("");
@@ -93,8 +94,9 @@ const handleSubmit = async (e) => {
     setImage(null);
 
   } catch (err) {
-    console.log("ERROR:", err.response?.data || err.message);
-    alert("Failed to add product");
+    console.log("ERROR:", err);
+    console.error("Failed to add product:", err.response?.data || err.message);
+    console.error("Failed to add product");
   }
 };
 

@@ -14,14 +14,14 @@ function AdminLogin() {
 
   try {
     const res = await axios.post(
-  "https://jiomart-backend-w3pb.onrender.com/AdminLogin",
+  `${import.meta.env.VITE_API_URL}/AdminLogin`,
   {
     email: email.trim().toLowerCase(),
     password: password.trim()
   }
 );
 
-    alert(res.data.message);
+    console.log(res.data.message);
 
     if (res.status === 200) {
       localStorage.setItem("role", "admin");
@@ -30,7 +30,7 @@ function AdminLogin() {
     }
 
   } catch (err) {
-    alert(err.response?.data?.message || "Invalid Admin Credentials");
+    console.error(err.response?.data?.message || "Invalid Admin Credentials");
   }
 };
 

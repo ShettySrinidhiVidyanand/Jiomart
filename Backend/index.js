@@ -159,6 +159,7 @@ app.post("/SignUp", async (req, res) => {
 });
 
 app.post("/Login", async (req, res) => {
+  console.log("LOGIN REQ:");
   try {
     const { email } = req.body;
 
@@ -550,7 +551,9 @@ app.get("/search", async (req, res) => {
 });
 
 app.post("/razorpayOrder", async (req, res) => {
+  
   try {
+    
     const { userId } = req.body;
     const cartItems = await Cart.find({ userId });
 

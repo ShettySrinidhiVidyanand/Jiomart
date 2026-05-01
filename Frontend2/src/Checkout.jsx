@@ -4,6 +4,9 @@ import "./Checkout.css";
 
 function Checkout() {
   const user = JSON.parse(localStorage.getItem("user"));
+
+
+  console.log("ENV:", import.meta.env);
   const [cartItems, setCartItems] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("Cash on Delivery");
   const [address, setAddress] = useState({
@@ -26,7 +29,7 @@ function Checkout() {
     }
 
     axios
-      .get(`http://localhost:5000/cart/${user.userId}`)
+      .get(`${import.meta.env.VITE_API_URL}/cart/${user.userId}`)
       .then((res) => setCartItems(res.data))
       .catch((err) => console.log(err));
   };
@@ -45,7 +48,7 @@ function Checkout() {
 
     if (paymentMethod === "Cash on Delivery") {
       axios
-        .post("http://localhost:5000/createOrder", {
+        .post(`${import.meta.env.VITE_API_URL}/createOrder`, {
           paymentMethod,
           address,
           status: "Pending",
@@ -61,14 +64,16 @@ function Checkout() {
 
 
     else {
+      
       try {
+        console.log("RAZORPAY KEY:", import.meta.env.VITE_RAZORPAY_KEY_ID);
         const res = await axios.post(
-          "http://localhost:5000/razorpayOrder",
+          `${import.meta.env.VITE_API_URL}/razorpayOrder`,
           { userId: user.userId }
         );
 
         const options = {
-          key: process.env.RAZORPAY_KEY_ID,
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID,
           amount: res.data.amount * 100, 
           currency: "INR",
           name: "JioMart",
@@ -76,24 +81,23 @@ function Checkout() {
           order_id: res.data.orderId,
 
           handler: async function (response) {
-            if (response.razorpay_payment_id) {
-              try {
-                await axios.post("http://localhost:5000/createOrder", {
+            try {
+              const verifyRes = await axios.post(
+                `${import.meta.env.VITE_API_URL}/verifyPayment`,
+                {
+                  ...response,
                   paymentMethod,
-                  address,
-                  status: "Paid",
-                  changeStatus: "Pending",
-                  userId: user.userId
-                });
+                  userId: user.userId,
+                  address
+                }
+              );
 
-                alert("Payment Verified & Order Saved ");
-                setCartItems([]);
-              } catch (err) {
-                console.log(err);
-                alert("Order saving failed");
-              }
-            } else {
-              alert("Payment verification failed ");
+              alert(verifyRes.data.message);
+              setCartItems([]);
+
+            } catch (err) {
+              console.log(err);
+              alert("Payment verification failed");
             }
           },
 

@@ -11,7 +11,7 @@ function ManageOrder() {
 
   const fetchOrders = async () => {
     try {
-      const res = await axios.get("https://jiomart-backend-w3pb.onrender.com/orders");
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/orders`);
       setOrders(res.data);
     } catch (err) {
       console.log(err);
@@ -20,7 +20,7 @@ function ManageOrder() {
 
   const deleteOrder = async (id) => {
     try {
-      await axios.delete(`https://jiomart-backend-w3pb.onrender.com/order/${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/order/${id}`);
       fetchOrders();
     } catch (err) {
       console.log(err);
@@ -29,7 +29,7 @@ function ManageOrder() {
 
   const updateStatus = async (order, newStatus) => {
     try {
-      await axios.put(`https://jiomart-backend-w3pb.onrender.com/order/${order._id}`, {
+      await axios.put(`${import.meta.env.VITE_API_URL}/order/${order._id}`, {
         paymentMethod: order.paymentMethod,
         address: order.address,
         status: newStatus,
@@ -67,7 +67,7 @@ function ManageOrder() {
                 <tr key={`${order._id}-${i}`}>
                   <td>
                     <img
-                      src={`http://localhost:5000/uploads/${item.image}`}
+                      src={item.image}
                       width="60"
                       alt={item.name}
                     />
