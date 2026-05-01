@@ -13,19 +13,21 @@ function Login() {
   const sendOtp = async () => {
 
     try {
+          const res = await axios.post(
+      `${import.meta.env.VITE_API_URL}/Login`,
+      { email }
+    );
 
-      const res = await axios.post(
-  `${import.meta.env.VITE_API_URL}/Login`,
-  { email }
-);
-
-      alert(res.data.message);
+      alert(res.data?.message || "OTP sent successfully");
 
       setShowOtp(true);
 
     } catch (err) {
-
-      console.error(err);
+          alert(
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to send OTP"
+      );
 
     }
 
