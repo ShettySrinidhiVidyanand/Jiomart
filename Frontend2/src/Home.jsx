@@ -11,7 +11,7 @@ function Home() {
   const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
-    axios.get("https://jiomart-backend-w3pb.onrender.com/products")
+    axios.get(`${import.meta.env.VITE_API_URL}/products`)
       .then((res) => setProducts(res.data))
       .catch((err) => console.log(err));
   }, []);
@@ -23,7 +23,7 @@ function Home() {
       return;
     }
 
-    axios.post("https://jiomart-backend-w3pb.onrender.com/addToCart", {
+    axios.post(`${import.meta.env.VITE_API_URL}/addToCart`, {
       productId: item._id,
       name: item.name,
       price: item.price,

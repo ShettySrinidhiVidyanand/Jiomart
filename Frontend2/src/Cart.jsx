@@ -16,21 +16,21 @@ function Cart() {
     return;
   }
 
-  axios.get(`https://jiomart-backend-w3pb.onrender.com/cart/${user.userId}`)
+  axios.get(`${import.meta.env.VITE_API_URL}/cart/${user.userId}`)
     .then(res => setCart(res.data))
     .catch(err => console.log(err));
 
 }, [user]);
 
   const removeItem = (id) => {
-    axios.delete(`https://jiomart-backend-w3pb.onrender.com/cart/${id}`)
+    axios.delete(`${import.meta.env.VITE_API_URL}/cart/${id}`)
       .then(() => {
         setCart(cart.filter(item => item._id !== id));
       });
   };
 
   const updateQuantity = (id, qty) => {
-    axios.put(`https://jiomart-backend-w3pb.onrender.com/cart/${id}`, {
+    axios.put(`${import.meta.env.VITE_API_URL}/cart/${id}`, {
       quantity: Math.max(1, qty)
     })
     .then(res => {
