@@ -31,6 +31,14 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+transporter.verify((err, success) => {
+  if (err) {
+    console.log("EMAIL ERROR:", err);
+  } else {
+    console.log("EMAIL WORKING");
+  }
+});
+
 const userSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true },
@@ -177,8 +185,7 @@ app.post("/Login", async (req, res) => {
       console.log("EMAIL ERROR:", mailErr);
 
       return res.json({
-        message: "OTP generated (email failed)",
-        otp
+        message: "Email failed. Try again later"
       });
     }
 
