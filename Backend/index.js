@@ -24,11 +24,18 @@ mongoose.connect(process.env.MONGO_URL,)
 .then(() => console.log("MongoDB Atlas Connected")) 
 .catch((err) => console.log(err));
 
+// const transporter = nodemailer.createTransport({
+//   host: "smtp.gmail.com",
+//   port: 587,
+//   secure: false,
+//   family: 4,
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASS,
+//   },
+// });
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  family: 4,
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -492,20 +499,41 @@ app.delete("/cart/:id", async (req, res) => {
   }
 });
 
+// const sendInvoice = async (order) => {
+//   const filePath = `invoice-${order._id}.pdf`;
+
+//   await generateInvoice(order, filePath);
+
+//   await transporter.sendMail({
+//     from: process.env.EMAIL_USER,
+//     to: order.address.email,
+//     subject: "Invoice",
+//     text: "Your invoice attached",
+//     attachments: [{ path: filePath }]
+//   });
+
+//   fs.unlinkSync(filePath); // delete file
+// };
+
 const sendInvoice = async (order) => {
-  const filePath = `invoice-${order._id}.pdf`;
+  try {
+    const filePath = `invoice-${order._id}.pdf`;
 
-  await generateInvoice(order, filePath);
+    await generateInvoice(order, filePath);
 
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: order.address.email,
-    subject: "Invoice",
-    text: "Your invoice attached",
-    attachments: [{ path: filePath }]
-  });
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: order.address.email,
+      subject: "Invoice",
+      text: "Your invoice attached",
+      attachments: [{ path: filePath }],
+    });
 
-  fs.unlinkSync(filePath); // delete file
+    fs.unlinkSync(filePath);
+
+  } catch (err) {
+    console.log("INVOICE EMAIL FAILED:", err);
+  }
 };
 
 app.post("/createOrder", async (req, res) => {
