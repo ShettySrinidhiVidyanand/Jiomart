@@ -12,7 +12,10 @@ function Home() {
 
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_API_URL}/products`)
-      .then((res) => setProducts(res.data))
+      // .then((res) => setProducts(res.data))
+      .then((res) => {
+  setProducts(Array.isArray(res.data) ? res.data : []);
+})
       .catch((err) => console.log(err));
   }, []);
 

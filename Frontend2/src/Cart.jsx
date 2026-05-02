@@ -17,7 +17,10 @@ function Cart() {
   }
 
   axios.get(`${import.meta.env.VITE_API_URL}/cart/${user.userId}`)
-    .then(res => setCart(res.data))
+    // .then(res => setCart(res.data))
+    .then(res => {
+  setCart(Array.isArray(res.data) ? res.data : []);
+})
     .catch(err => console.log(err));
 
 }, [user]);

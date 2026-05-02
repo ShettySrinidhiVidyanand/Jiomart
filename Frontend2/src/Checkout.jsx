@@ -30,7 +30,10 @@ function Checkout() {
 
     axios
       .get(`${import.meta.env.VITE_API_URL}/cart/${user.userId}`)
-      .then((res) => setCartItems(res.data))
+      // .then((res) => setCartItems(res.data))
+      .then((res) => {
+  setCartItems(Array.isArray(res.data) ? res.data : []);
+})
       .catch((err) => console.log(err));
   };
 
