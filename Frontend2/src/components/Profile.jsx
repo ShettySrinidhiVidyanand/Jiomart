@@ -11,7 +11,7 @@ const Profile = () => {
   setUser(storedUser);
 
   if (storedUser?.userId) {
-    fetch(`https://jiomart-backend-w3pb.onrender.com/my-orders/${storedUser.userId}`)
+    fetch(`${import.meta.env.VITE_API_URL}/my-orders/${storedUser.userId}`)
       .then(res => {
         if (!res.ok) throw new Error("Failed to fetch");
         return res.json();

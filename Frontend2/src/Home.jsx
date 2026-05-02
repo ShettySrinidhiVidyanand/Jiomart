@@ -29,7 +29,7 @@ function Home() {
       price: item.price,
       image: item.image,
       quantity: 1,
-      userId: user.userId   
+      userId: user.userId  ,
     })
     .then(() => {
       alert("Product added to cart");

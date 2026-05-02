@@ -27,7 +27,7 @@ function AdminDashboard() {
   }, []);
 
   const fetchStats = async () => {
-    const res = await axios.get("https://jiomart-backend-w3pb.onrender.com/admin-stats");
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/admin-stats`);
     setStats(res.data);
   };
 

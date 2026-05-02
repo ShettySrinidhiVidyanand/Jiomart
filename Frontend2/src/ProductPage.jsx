@@ -34,7 +34,8 @@ function ProductPage() {
       price: product.price,
       image: product.image,
       quantity: quantity,  
-      userId: user.userId   
+      userId: user.userId ,
+      gst: product.gst || GST_PERCENT 
     })
     .then(() => {
       alert("Product added to cart");

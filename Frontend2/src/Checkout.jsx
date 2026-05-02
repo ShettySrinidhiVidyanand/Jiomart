@@ -85,14 +85,16 @@ function Checkout() {
               const verifyRes = await axios.post(
                 `${import.meta.env.VITE_API_URL}/verifyPayment`,
                 {
-                  ...response,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
                   paymentMethod,
                   userId: user.userId,
                   address
                 }
               );
-
-              alert(verifyRes.data.message);
+              alert("Payment Successful ");
+              console.log("ORDER:", verifyRes.data);
               setCartItems([]);
 
             } catch (err) {

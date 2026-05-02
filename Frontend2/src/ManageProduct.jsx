@@ -15,7 +15,7 @@ function ManageProduct() {
   }, []);
 
   const fetchProducts = () => {
-    axios.get("https://jiomart-backend-w3pb.onrender.com/products")
+    axios.get(`${import.meta.env.VITE_API_URL}/products`)
       .then((res) => {
         setProducts(res.data);
       })
@@ -27,7 +27,7 @@ function ManageProduct() {
 
   if(window.confirm("Are you sure you want to delete this product?")){
 
-    axios.delete(`https://jiomart-backend-w3pb.onrender.com/deleteProduct/${id}`)
+    axios.delete(`${import.meta.env.VITE_API_URL}/deleteProduct/${id}`)
     .then(() => {
 
       alert("Product Deleted");

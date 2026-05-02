@@ -11,7 +11,7 @@ function Search() {
 
   useEffect(() => {
     if (query) {
-      fetch(`https://jiomart-backend-w3pb.onrender.com/search?q=${query}`)
+      fetch(`${import.meta.env.VITE_API_URL}/search?q=${query}`)
         .then((res) => res.json())
         .then((data) => setProducts(data))
         .catch((err) => console.log(err));
@@ -32,7 +32,7 @@ function Search() {
               className="product-card"
               onClick={() => navigate(`/product/${item._id}`)}
             >
-              <img src={`http://localhost:5000/uploads/${item.image}`} alt={item.name} />
+              <img src={`$/uploads/${item.image}`} alt={item.name} />
               <h4>{item.name}</h4>
               <p>₹{item.price}</p>
               <p>{item.description}</p>

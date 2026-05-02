@@ -7,6 +7,7 @@ const nodemailer = require("nodemailer");
 const path = require("path");
 const crypto = require("crypto");
 const PDFDocument = require("pdfkit");
+const fs = require("fs");
 
 const app = express();
 const GST_PERCENT = 18;
@@ -102,7 +103,8 @@ const cartSchema = new mongoose.Schema({
   name: String,
   price: Number,
   image: String,
-  quantity: Number
+  quantity: Number,
+
 });
 const Cart = mongoose.model("Cart", cartSchema);
 
@@ -134,6 +136,122 @@ const orderSchema = new mongoose.Schema({
 
 const Order = mongoose.model("Order", orderSchema);
 
+const generateInvoice = (order, filePath) => {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ margin: 40 });
+    const stream = fs.createWriteStream(filePath);
+    doc.pipe(stream);
+
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(22)
+      .fillColor("#cc4f33") 
+      .text("JioMart", 40, 30);
+
+    doc.fillColor("black");
+    doc.moveDown(1); 
+    doc.fontSize(18).text("OFFICIAL RECEIPT", { align: "center" });
+
+    doc.fontSize(10);
+    doc.text(`Invoice #: ${order._id}`);
+    doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`);
+    doc.text(`Payment: ${order.paymentMethod}`);
+    doc.moveDown();
+
+    const leftX = 40;
+    const rightX = 300;
+    let y = doc.y;
+
+    doc.text("Billed To:", leftX, y);
+    doc.text("Shipping:", rightX, y);
+
+    y += 15;
+    doc.text(order.address.name, leftX, y);
+    doc.text("Standard Delivery", rightX, y);
+
+    y += 15;
+    doc.text(order.address.address, leftX, y);
+    doc.text("3-5 Days", rightX, y);
+
+    y += 30;
+
+    const col = {
+      item: 40,
+      qty: 220,
+      price: 270,
+      base: 330,
+      cgst: 390,
+      sgst: 440,
+      total: 490
+    };
+
+    doc.font("Helvetica-Bold");
+    doc.text("Item", col.item, y);
+    doc.text("Qty", col.qty, y);
+    doc.text("Price", col.price, y);
+    doc.text("Base", col.base, y);
+    doc.text("CGST", col.cgst, y);
+    doc.text("SGST", col.sgst, y);
+    doc.text("Total", col.total, y);
+
+    y += 10;
+    doc.moveTo(40, y).lineTo(550, y).stroke();
+
+    doc.font("Helvetica");
+
+    let subtotal = 0;
+    let gstTotal = 0;
+
+    order.items.forEach(item => {
+      y += 15;
+
+      const price = item.price;
+      const qty = item.quantity;
+      const gst = item.gst || GST_PERCENT;
+
+      const base = price / (1 + gst / 100);
+      const taxable = base * qty;
+
+      const cgst = (taxable * gst) / 200;
+      const sgst = cgst;
+
+      const total = price * qty;
+
+      subtotal += taxable;
+      gstTotal += cgst + sgst;
+
+      doc.text(item.name, col.item, y, { width: 170 });
+      doc.text(qty.toString(), col.qty, y);
+      doc.text(price.toFixed(2), col.price, y);
+      doc.text(taxable.toFixed(2), col.base, y);
+      doc.text(cgst.toFixed(2), col.cgst, y);
+      doc.text(sgst.toFixed(2), col.sgst, y);
+      doc.text(total.toFixed(2), col.total, y);
+    });
+
+    y += 20;
+    doc.moveTo(40, y).lineTo(550, y).stroke();
+
+
+    y += 15;
+    const summaryX = 380;
+
+    doc.text(`Base Subtotal: ₹${subtotal.toFixed(2)}`, summaryX, y);
+    y += 15;
+    doc.text(`Total Tax (GST): ₹${gstTotal.toFixed(2)}`, summaryX, y);
+    y += 15;
+    doc.text(`Shipping: FREE`, summaryX, y);
+
+    y += 20;
+    doc.font("Helvetica-Bold");
+    doc.text(`Grand Total: ₹${(subtotal + gstTotal).toFixed(2)}`, summaryX, y);
+
+    doc.end();
+
+    stream.on("finish", resolve);
+    stream.on("error", reject);
+  });
+};
 const Razorpay = require("razorpay");
 
 
@@ -291,7 +409,8 @@ app.put("/updateProduct/:id", upload.single("image"), async (req, res) => {
       price: req.body.price,
       quantity: req.body.quantity,
       category: req.body.category,
-      description: req.body.description
+      description: req.body.description,
+      gst: req.body.gst
     };
 
     if (req.file) updateData.image = req.file.path || req.file.secure_url;
@@ -315,6 +434,7 @@ app.delete("/deleteProduct/:id", async (req, res) => {
 
 app.post("/addToCart", async (req, res) => {
   try {
+    console.log("ADD TO CART BODY:", req.body);
     const { productId, name, price, image, quantity,userId } = req.body;
 
     const existingItem = await Cart.findOne({ productId ,userId});
@@ -328,16 +448,17 @@ app.post("/addToCart", async (req, res) => {
 
     res.json({ message: "Product added to cart" });
 
-  } catch {
-    res.status(500).json({ message: "Error adding to cart" });
+  } catch (err) {
+    console.log("ADD TO CART ERROR:", err);
+    res.status(500).json({ message: err.message });
   }
 });
 
 app.get("/cart/:userId", async (req, res) => {
   try {
     res.json(await Cart.find({ userId: req.params.userId }));
-  } catch {
-    res.status(500).json({ message: "Error fetching cart" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -356,8 +477,9 @@ app.put("/cart/:id", async (req, res) => {
 
     res.json({ message: "Cart updated", item });
 
-  } catch {
-    res.status(500).json({ message: "Error updating cart" });
+  } catch (err) {
+
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -365,113 +487,79 @@ app.delete("/cart/:id", async (req, res) => {
   try {
     await Cart.findByIdAndDelete(req.params.id);
     res.json({ message: "Item removed from cart" });
-  } catch {
+  } catch (err) {
     res.status(500).json({ message: "Error deleting item" });
   }
 });
 
+const sendInvoice = async (order) => {
+  const filePath = `invoice-${order._id}.pdf`;
+
+  await generateInvoice(order, filePath);
+
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: order.address.email,
+    subject: "Invoice",
+    text: "Your invoice attached",
+    attachments: [{ path: filePath }]
+  });
+
+  fs.unlinkSync(filePath); // delete file
+};
+
 app.post("/createOrder", async (req, res) => {
   try {
-    const { paymentMethod, address, status, userId } = req.body;
+    const { userId, address, paymentMethod } = req.body;
 
-    const cartItems = await Cart.find({ userId });
+    const cart = await Cart.find({ userId });
 
-    if (cartItems.length === 0) {
-      return res.status(400).json({ message: "Cart is empty" });
-    }
+    let subtotal = 0;
+    let gstAmount = 0;
 
-    const subtotal = cartItems.reduce((t, i) => t + i.price * i.quantity, 0);
-    const gstAmount = (subtotal * GST_PERCENT) / 100;
-    const totalAmount = subtotal + gstAmount;
+    const items = cart.map(i => {
+      const gst = i.gst || GST_PERCENT;
+      const base = i.price / (1 + gst / 100);
+      const taxable = base * i.quantity;
+      const tax=(taxable * gst) / 100;
 
-    const orderItems = cartItems.map(i => ({
-      productId: i.productId,
-      name: i.name,
-      price: i.price,
-      image: i.image,
-      quantity: i.quantity
-    }));
+      subtotal += taxable;
+      gstAmount += tax;
 
-    const newOrder = await new Order({
+      return {
+        productId: i.productId,
+        name: i.name,
+        price: i.price,
+        quantity: i.quantity,
+        image: i.image
+
+      };
+    });
+
+    const order = await Order.create({
       userId,
-      items: orderItems,
+      items,
       subtotal,
       gstAmount,
-      totalAmount,
+      totalAmount: subtotal + gstAmount,
       paymentMethod,
       address,
-      status: status || "Pending",
-      changeStatus: "Pending"
-    }).save();
+      status: "Pending"
+    });
 
-    try {
-      const doc = new PDFDocument();
-      let buffers = [];
-
-      doc.on("data", (chunk) => buffers.push(chunk));
-
-      doc.on("end", async () => {
-        const pdfData = Buffer.concat(buffers);
-
-        try {
-          const info = await transporter.sendMail({
-            from: `"JioMart" <${process.env.EMAIL_USER}>`,
-            to: address.email,
-            subject: "Invoice - JioMart Order",
-            text: "Your order invoice is attached as PDF.",
-            attachments: [
-              {
-                filename: "invoice.pdf",
-                content: pdfData
-              }
-            ]
-          });
-
-          console.log("PDF MAIL SENT:", info.response);
-        } catch (err) {
-          console.log("MAIL ERROR:", err);
-        }
-      });
-
-      doc.fontSize(20).text("JioMart Invoice", { align: "center" });
-      doc.moveDown();
-
-      doc.fontSize(12).text(`Customer: ${address.name}`);
-      doc.text(`Email: ${address.email}`);
-      doc.text(`Address: ${address.address}, ${address.pincode}`);
-      doc.moveDown();
-
-      doc.text("Products:");
-      doc.moveDown();
-
-      orderItems.forEach((item, index) => {
-        doc.text(`${index + 1}. ${item.name} - ₹${item.price} x ${item.quantity}`);
-      });
-
-      doc.moveDown();
-      doc.text(`Subtotal: ₹${subtotal}`);
-      doc.text(`GST (18%): ₹${gstAmount.toFixed(2)}`);
-      doc.text(`Total: ₹${totalAmount.toFixed(2)}`);
-      doc.text(`Payment: ${paymentMethod}`);
-
-      doc.end();
-
-    } catch (err) {
-      console.log("PDF ERROR:", err);
-    }
-
+    await sendInvoice(order);
     await Cart.deleteMany({ userId });
 
     res.json({
-      message: "Order placed successfully",
-      order: newOrder
+      message: "Order created successfully",
+      order
     });
 
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Error placing order" });
+    res.status(500).json(err);
   }
 });
+
 
 
 app.get("/orders", async (req, res) => {
@@ -592,68 +680,60 @@ app.post("/razorpayOrder", async (req, res) => {
 
 app.post("/verifyPayment", async (req, res) => {
   try {
-    const {
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-      paymentMethod,
-      userId,
-      address
-    } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, userId, address,paymentMethod } = req.body;
 
     const body = razorpay_order_id + "|" + razorpay_payment_id;
 
-    const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(body.toString())
+    const expected = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(body)
       .digest("hex");
 
-    if (expectedSignature === razorpay_signature) {
+    if (expected !== razorpay_signature)
+      return res.status(400).json({ message: "Invalid payment" });
 
-      const cartItems = await Cart.find({ userId });
+    const cart = await Cart.find({ userId });
 
-      const subtotal = cartItems.reduce(
-      (t, i) => t + i.price * i.quantity,
-      0
-    );
+    let subtotal = 0;
+    let gstAmount = 0;
 
-    const gstAmount = (subtotal * GST_PERCENT) / 100;
-    const totalAmount = subtotal + gstAmount;
+    const items = cart.map(i => {
+      const gst = i.gst || GST_PERCENT;
+      const base = i.price / (1 + gst / 100);
+      const taxable = base * i.quantity;
+      const tax=(taxable * gst) / 100;
 
-      const orderItems = cartItems.map((i) => ({
+      subtotal += taxable;
+      gstAmount += tax;
+
+      return {
         productId: i.productId,
         name: i.name,
         price: i.price,
-        image: i.image,
-        quantity: i.quantity
-      }));
+        quantity: i.quantity,
+        gst: gst,
+        image: i.image
 
-      const newOrder = await new Order({
-        items: orderItems,
-        gstAmount,
-        totalAmount,
-        subtotal,
-        paymentMethod,
-        address,
-        userId,
-        status: "Paid",
-        changeStatus: "Pending"
-      }).save();
+      };
+    });
 
-      await Cart.deleteMany({ userId });
+    const order = await Order.create({
+      userId,
+      items,
+      subtotal,
+      gstAmount,
+      totalAmount: subtotal + gstAmount,
+      paymentMethod: paymentMethod||"Paid",
+      address,
+      status: "Paid"
+    });
 
-      return res.json({
-        message: "Payment verified & Order placed successfully",
-        order: newOrder
-      });
-    } else {
-      return res.status(400).json({
-        message: "Payment verification failed"
-      });
-    }
+    await sendInvoice(order);
+    await Cart.deleteMany({ userId });
+
+    res.json(order);
+
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Verification error" });
+    res.status(500).json(err);
   }
 });
 
